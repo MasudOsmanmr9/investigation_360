@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../server.js'; // Import JWT secret
+import { JWT_SECRET } from '../../server.js'; // Import JWT secret
 import User from '../models/userModel.js';
 
 export const authenticate = (req, res, next) => {

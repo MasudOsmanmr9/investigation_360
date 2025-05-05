@@ -1,6 +1,6 @@
 import User from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../server.js';
+import { JWT_SECRET } from '../../server.js';
 
 export const register = async (req, res) => {
     const { email, password, role } = req.body;

@@ -7,10 +7,10 @@ import { Server } from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import authRoutes from './routes/authRoutes.js';
-import userRoutes from './routes/userRoutes.js';
-import requestRoutes from './routes/requestRoutes.js';
-import investigatorRoutes from './routes/investigatorRoutes.js';
+import authRoutes from './src/routes/authRoutes.js';
+import userRoutes from './src/routes/userRoutes.js';
+import requestRoutes from './src/routes/requestRoutes.js';
+import investigatorRoutes from './src/routes/investigatorRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
