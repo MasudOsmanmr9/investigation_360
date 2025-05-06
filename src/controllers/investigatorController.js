@@ -6,10 +6,22 @@ import multer from 'multer';
 import path from 'path';
 
 export const browseAvailableRequests = async (req, res) => {
+    const { page = 1, limit = 10 } = req.query; // Default to page 1 and 10 results per page
+
     try {
         const availableRequests = await Request.find({ status: 'pending', assignedInvestigatorId: { $exists: false } })
-            .populate('requesterId', 'name contactDetails');
-        res.json(availableRequests);
+            .populate('requesterId', 'name contactDetails')
+            .skip((page - 1) * limit) // Skip documents for previous pages
+            .limit(parseInt(limit)); // Limit the number of results
+
+        const totalRequests = await Request.countDocuments({ status: 'pending', assignedInvestigatorId: { $exists: false } });
+
+        res.json({
+            totalRequests,
+            totalPages: Math.ceil(totalRequests / limit),
+            currentPage: parseInt(page),
+            requests: availableRequests,
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error browsing available requests.', error });
     }
@@ -89,11 +101,32 @@ export const submitReport = async (req, res) => {
 
 export const getInvestigatorRequests = async (req, res) => {
     const { userId } = req;
+    const { status, page = 1, limit = 10 } = req.query; // Default to page 1 and 10 results per page
+
     try {
-        const investigatorRequests = await Request.find({ assignedInvestigatorId: userId })
+        // Build the query dynamically based on the status filter
+        const query = { assignedInvestigatorId: userId };
+        if (status) {
+            query.status = status; // Add status filter if provided
+        }
+
+        // Fetch paginated results
+        const investigatorRequests = await Request.find(query)
             .populate('requesterId', 'name contactDetails')
-            .select('-report');
-        res.json(investigatorRequests);
+            .select('-report')
+            .skip((page - 1) * limit) // Skip documents for previous pages
+            .limit(parseInt(limit)); // Limit the number of results
+
+        // Get the total count of matching documents
+        const totalRequests = await Request.countDocuments(query);
+
+        // Respond with paginated data and metadata
+        res.json({
+            totalRequests,
+            totalPages: Math.ceil(totalRequests / limit),
+            currentPage: parseInt(page),
+            requests: investigatorRequests,
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error fetching investigator requests', error });
     }
