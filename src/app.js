@@ -30,8 +30,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/investigators', investigatorRoutes);
 
-app.get('/', (req, res) => {
-    res.send('Neighbor Investigator Platform API');
+app.get('/api', (req, res) => {
+    res.send('Investigator Platform API');
 });
 
 app.use(errorHandeler);

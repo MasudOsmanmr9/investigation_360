@@ -1,0 +1,1 @@
+export const userRolesConst = ['investigator', 'requester', 'both'];

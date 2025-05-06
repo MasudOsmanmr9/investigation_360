@@ -13,10 +13,13 @@ export const authenticate = (req, res, next) => {
     try {
         
         const decoded = verifyToken(token);
+        console.log({decoded})
         req.userId = decoded.userId; // Set userId in request for later use
         req.userRole = decoded.role;
+        req.activeRole = decoded.activeRole;
         next();
     } catch (error) {
+        console.error('Token verification error:', error);
         return res.status(401).json({ message: 'Unauthorized. Invalid token.' });
     }
 };
@@ -24,7 +27,7 @@ export const authenticate = (req, res, next) => {
 // Authorization middleware
 export const authorize = (role) => {
     return (req, res, next) => {
-        if (req.userRole === role || req.userRole === 'both') { // Allow 'both' roles
+        if ( req.userRole === 'both' || req.activeRole === role) { // Allow 'both' roles
             next();
         } else {
             res.status(403).json({ message: `Forbidden. ${req.userRole} does not have permission.` });
