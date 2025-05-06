@@ -1,6 +1,8 @@
 import User from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../../server.js';
+// import { JWT_SECRET } from '../server.js';
+import { generateToken } from '../utils/jwtUtils.js';
+import { verifyToken } from '../utils/jwtUtils.js';
 
 export const register = async (req, res) => {
     const { email, password, role } = req.body;
@@ -11,7 +13,7 @@ export const register = async (req, res) => {
         }
         const newUser = new User({ email, password, role });
         await newUser.save();
-        const token = jwt.sign({ userId: newUser._id, role: newUser.role }, JWT_SECRET, { expiresIn: '1h' });
+        const token = generateToken(newUser);
         res.status(201).json({ message: 'User registered successfully.', token, userId: newUser._id, role: newUser.role });
     } catch (error) {
         res.status(500).json({ message: 'Error registering user.', error });
@@ -29,7 +31,7 @@ export const login = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid credentials.' });
         }
-        const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+        const token = generateToken(newUser);
         res.json({ message: 'Login successful.', token, userId: user._id, role: user.role, activeRole: user.activeRole });
     } catch (error) {
         res.status(500).json({ message: 'Error logging in.', error });

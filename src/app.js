@@ -12,6 +12,9 @@ import userRoutes from './routes/userRoutes.js';
 import requestRoutes from './routes/requestRoutes.js';
 import investigatorRoutes from './routes/investigatorRoutes.js';
 import { errorHandeler } from './middleware/errorHandeler.js';
+import dotenv from 'dotenv';
+
+const result = dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,15 +24,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(bodyParser.json());
-
-mongoose.connect('mongodb://localhost:27017/investigator', {})
-.then(() => {
-    console.log('Connected to MongoDB');
-}).catch(err => {
-    console.error('Error connecting to MongoDB:', err);
-});
-
-export const JWT_SECRET = 'your-secret-key';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -41,3 +35,5 @@ app.get('/', (req, res) => {
 });
 
 app.use(errorHandeler);
+
+export { app };

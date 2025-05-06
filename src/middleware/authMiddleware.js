@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../../server.js'; // Import JWT secret
+// import { JWT_SECRET } from '../../server.js'; // Import JWT secret
 import User from '../models/userModel.js';
+import { generateToken, verifyToken } from '../utils/jwtUtils.js';
 
 export const authenticate = (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1]; // Get token from Authorization header
@@ -10,7 +11,8 @@ export const authenticate = (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        
+        const decoded = verifyToken(token);
         req.userId = decoded.userId; // Set userId in request for later use
         req.userRole = decoded.role;
         next();
