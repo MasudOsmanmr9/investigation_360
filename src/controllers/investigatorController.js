@@ -70,7 +70,8 @@ export const declineRequest = async (req, res) => {
 
 export const submitReport = async (req, res) => {
     const { userId } = req;
-    const { requestId, reportData } = req.body;
+    const { reportData } = req.body;
+    const { requestId } = req.params; // Assuming the file is sent in the request body
 
     try {
         const request = await Request.findById(requestId);
@@ -85,6 +86,7 @@ export const submitReport = async (req, res) => {
             investigatorId: userId,
             requestId,
             reportData,
+            file: `reportFile-${requestId}.pdf`, // Assuming the file is sent in the request body
         });
 
         await newReport.save();

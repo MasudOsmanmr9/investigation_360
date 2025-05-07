@@ -6,7 +6,16 @@ const storage = multer.diskStorage({
         cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+
+        console.log('req.params',JSON.stringify(req.params))
+        const requestId = req.params.requestId; // Access requestId from form-data
+        if (!requestId) {
+            return cb(new Error('Request ID is missing in params'), null);
+        }
+
+        console.log('req.params.requestId',req.params.requestId)
+        // const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const uniqueSuffix = requestId;
         const fileExtension = path.extname(file.originalname);
         cb(null, file.fieldname + '-' + uniqueSuffix + fileExtension);
     },

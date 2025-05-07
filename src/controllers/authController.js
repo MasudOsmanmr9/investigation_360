@@ -33,7 +33,7 @@ export const login = async (req, res) => {
         if (!user) {
             return res.status(401).json({ message: 'Invalid credentials.' });
         }
-        const isPasswordValid = await user.comparePassword(password);
+        const isPasswordValid = await user.comparePassword(password); // Compare password using the method defined in userModel
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid credentials.' });
         }
