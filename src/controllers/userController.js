@@ -1,5 +1,7 @@
 import User from '../models/userModel.js';
 import { userRolesConst } from '../config/const.js';
+import Request from '../models/requestModel.js';
+import Report from '../models/reportModel.js';
 
 export const getProfile = async (req, res) => {
     const { userId } = req; 
@@ -54,5 +56,41 @@ export const switchRole = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error switching roles', error });
+    }
+};
+
+export const getCombinedDashboardData = async (req, res) => {
+    const { userId, userRole } = req;
+
+    try {
+        const dashboardData = {};
+
+        if (userRole === 'requester' || userRole === 'both') {
+            const requesterRequests = await Request.find({ requesterId: userId })
+                .populate('assignedInvestigatorId', 'name contactDetails')
+                .select('-report')
+                .sort({ createdAt: -1 }); // Show newest first
+            dashboardData.requesterActivities = requesterRequests;
+        }
+
+        if (userRole === 'investigator' || userRole === 'both') {
+            const investigatorRequests = await Request.find({ assignedInvestigatorId: userId })
+                .populate('requesterId', 'name contactDetails')
+                .select('-report')
+                .sort({ createdAt: -1 }); // Show newest first
+            dashboardData.investigatorActivities = investigatorRequests;
+
+            const availableRequests = await Request.find({ status: 'pending', assignedInvestigatorId: { $exists: false } })
+                .populate('requesterId', 'name contactDetails')
+                .sort({ createdAt: -1 })
+                .limit(5); // Show a limited number of available requests
+            dashboardData.availableRequests = availableRequests;
+        }
+
+        res.json(dashboardData);
+
+    } catch (error) {
+        console.error('Error fetching combined dashboard data:', error);
+        res.status(500).json({ message: 'Error fetching dashboard data.' });
     }
 };

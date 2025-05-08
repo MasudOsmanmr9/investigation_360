@@ -14,6 +14,8 @@ import investigatorRoutes from './routes/investigatorRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 import { errorHandeler } from './middleware/errorHandeler.js';
 import dotenv from 'dotenv';
+import cors from 'cors'
+
 
 const result = dotenv.config();
 
@@ -24,7 +26,9 @@ const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+app.use(cors())
 app.use(bodyParser.json());
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

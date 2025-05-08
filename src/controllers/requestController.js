@@ -21,16 +21,22 @@ export const submitRequest = async (req, res) => {
 
 export const viewMyRequests = async (req, res) => {
     const { userId } = req;
-    const { page = 1, limit = 10 } = req.query; 
+    const { page = 1, limit = 10,status = 'pending' } = req.query; 
+
     try {
-        const userRequests = await Request.find({ requesterId: userId })
+        let query = {
+            requesterId: userId,
+            status: status,
+        };
+        const userRequests = await Request.find(query)
             .populate('assignedInvestigatorId', 'name contactDetails')
             .select('-report')
             .skip((page - 1) * limit)
             .limit(parseInt(limit));
         
-        const totalRequests = await Request.countDocuments({ requesterId: userId });
+        const totalRequests = await Request.countDocuments(query);
         const totalPages = Math.ceil(totalRequests / limit);
+        console.log({totalPages}, {page}, {limit},'Math.ceil(totalRequests / limit)',Math.ceil(totalRequests / limit))
 
         res.json({
             totalRequests,
@@ -41,6 +47,26 @@ export const viewMyRequests = async (req, res) => {
         //res.json(userRequests);
     } catch (error) {
         res.status(500).json({ message: 'Error viewing requests.', error });
+    }
+};
+
+export const getSingleRequest = async (req, res) => {
+    const { requestId } = req.params; // Extract requestId from the route parameters
+
+    try {
+        // Find the request by ID and populate related fields
+        const request = await Request.findById(requestId)
+            .populate('requesterId', 'name contactDetails') // Populate requester details
+            .populate('assignedInvestigatorId', 'name contactDetails') // Populate investigator details
+            .populate('report'); // Populate report details
+
+        if (!request) {
+            return res.status(404).json({ message: 'Request not found.' });
+        }
+
+        res.json({ message: 'Request fetched successfully.', request });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching the request.', error });
     }
 };
 
