@@ -36,7 +36,6 @@ export const viewMyRequests = async (req, res) => {
         
         const totalRequests = await Request.countDocuments(query);
         const totalPages = Math.ceil(totalRequests / limit);
-        console.log({totalPages}, {page}, {limit},'Math.ceil(totalRequests / limit)',Math.ceil(totalRequests / limit))
 
         res.json({
             totalRequests,
