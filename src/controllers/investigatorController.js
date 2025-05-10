@@ -112,7 +112,7 @@ export const submitReport = async (req, res) => {
             return res.status(404).json({ message: 'Request not found.' });
         }
         if (request.status !== 'in-progress') {
-            return res.status(400).json({ message: 'Request is not in progress.' });
+            return res.status(400).json({ message: 'Request is completed.' });
         }
         console.log('File extension:', fileExtension); // Log the file extension for debugging
         const newReport = new Report({
