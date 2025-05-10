@@ -2,7 +2,7 @@ import User from '../models/userModel.js';
 import { userRolesConst } from '../config/const.js';
 import Request from '../models/requestModel.js';
 import Report from '../models/reportModel.js';
-
+import { generateToken } from '../utils/jwtUtils.js';
 export const getProfile = async (req, res) => {
     const { userId } = req; 
     try {
@@ -51,8 +51,15 @@ export const switchRole = async (req, res) => {
         }
         user.activeRole = switchRoleto;
         await user.save();
-        res.json({ message: 'Role switched successfully', activeRole: user.activeRole });
+      // Generate a new token with the updated role
+        const token = generateToken(user);
 
+      // Send the updated user and new token in the response
+        res.json({
+            message: 'Role switched successfully.',
+            user,
+            token,
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error switching roles', error });

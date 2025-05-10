@@ -9,11 +9,15 @@ export const downloadReport = async (req, res) => {
 
     try {
         // Find the request and populate the report field
-        const request = await Request.findById(requestId).populate('report');
+        const request = await Request.findById(requestId)
+            .populate('requesterId', 'name contactDetails') // Populate requester details
+            .populate('assignedInvestigatorId', 'name contactDetails') // Populate investigator details
+            .populate('report'); 
+        console.log('acccess 1',{requestId},{request});
         if (!request) {
             return res.status(404).json({ message: 'Request not found.' });
         }
-
+        console.log('acccess 2',{request});
         // Check if the report exists
         if (!request.report || !request.report.file) {
             return res.status(404).json({ message: 'Report not found for this request.' });
