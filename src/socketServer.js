@@ -16,9 +16,10 @@ const setupSocketServer = (httpServer) => {
             console.log(`User joined room: ${requestId}`);
         });
 
-        socket.on('sendMessage', ({ requestId, senderId, message }) => {
-            io.to(requestId).emit('message', { senderId, message, timestamp: new Date() });
-            console.log(`Message sent to room ${requestId}: ${message} from ${senderId}`);
+        socket.on('sendMessage', ({ room, senderId, message }) => {
+            console.log(`Message received: ${message} from ${senderId} in room ${room}`);
+            io.to(room).emit('message', { senderId, message, timestamp: new Date() });
+            console.log(`Message sent to room ${room}: ${message} from ${senderId}`);
         });
 
         socket.on('disconnect', () => {

@@ -22,8 +22,7 @@ export const downloadReport = async (req, res) => {
         }
         let fileExtension = request.report.file.split('.').pop().toLowerCase();
         // Check if the file extension is valid
-        console.log(request.report); // Log the file name for debugging
-        console.log('File extensionssssssssssssss:', fileExtension); // Log the file extension for debugging
+    
         const mimeType = {
             png: 'image/png',
             jpg: 'image/jpeg',
@@ -35,16 +34,15 @@ export const downloadReport = async (req, res) => {
         res.setHeader('Content-Type', mimeType);
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = path.dirname(__filename);
-        console.log('file name', request.report.file); // Log the current directory for debugging
+
         const filePath = path.resolve(__dirname, '../../uploads', request.report.file);
-        console.log('File path:', filePath); // Log the file path for debugging
         
         
         const fileName = path.basename(request.report.file);
 
-        console.log('File path:', filePath); // Debugging
-        console.log('File name:', fileName); // Debugging
-        console.log('MIME type:', mimeType); // Debugging
+        // console.log('File path:', filePath); // Debugging
+        // console.log('File name:', fileName); // Debugging
+        // console.log('MIME type:', mimeType); // Debugging
 
         // Explicitly set the Content-Disposition header
         res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);

@@ -13,7 +13,6 @@ export const authenticate = (req, res, next) => {
     try {
         
         const decoded = verifyToken(token);
-        console.log({decoded})
         req.userId = decoded.userId; // Set userId in request for later use
         req.userRole = decoded.role;
         req.activeRole = decoded.activeRole;

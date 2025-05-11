@@ -7,9 +7,7 @@ export const createReview = async (req, res) => {
 
     try {
         // Check if the investigator exists
-        console.log('Investigator ID:', investigatorId);
         const investigator = await User.findById(investigatorId);
-        console.log('Investigator:', investigator);
         if (!investigator || !['investigator', 'both'].includes(investigator.role)) {
             return res.status(404).json({ message: 'Investigator not found.' });
         }

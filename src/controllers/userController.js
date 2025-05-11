@@ -83,12 +83,9 @@ export const switchRole = async (req, res) => {
 
 export const getCombinedDashboardData = async (req, res) => {
     const { userId, userRole } = req;
-    console.log('User ID:', userId);
-    console.log('User Role:', userRole);
     try {
         const dashboardData = {};
         if(userRole === 'investigator' || userRole === 'both') {
-            console.log('acccesssing investigator');
             const [availableCount, inProgressCount, completedCount, reviewsCount] = await Promise.all([
                 Request.countDocuments({ status: 'pending', assignedInvestigatorId: { $exists: false } }),
                 Request.countDocuments({ status: 'in-progress', assignedInvestigatorId: userId }),
@@ -106,7 +103,6 @@ export const getCombinedDashboardData = async (req, res) => {
         }
 
         if(userRole === 'requester' || userRole === 'both') {
-            console.log('acccesssing requester');
             const [pendingCount, inProgressCount, completedCount] = await Promise.all([
                 Request.countDocuments({ status: 'pending', requesterId: userId }),
                 Request.countDocuments({ status: 'in-progress', assignedInvestigatorId: { $exists: true } }),
