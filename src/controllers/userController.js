@@ -2,6 +2,7 @@ import User from '../models/userModel.js';
 import { userRolesConst } from '../config/const.js';
 import Request from '../models/requestModel.js';
 import Report from '../models/reportModel.js';
+import Review from '../models/reviewModel.js';
 import { generateToken } from '../utils/jwtUtils.js';
 export const getProfile = async (req, res) => {
     const { userId } = req; 
@@ -81,20 +82,22 @@ export const switchRole = async (req, res) => {
 };
 
 export const getCombinedDashboardData = async (req, res) => {
-    const { userId, role } = req;
-
+    const { userId, userRole } = req;
+    console.log('User ID:', userId);
+    console.log('User Role:', userRole);
     try {
         const dashboardData = {};
-        
-        if(role === 'investigator' || role === 'both') {
+        if(userRole === 'investigator' || userRole === 'both') {
+            console.log('acccesssing investigator');
             const [availableCount, inProgressCount, completedCount, reviewsCount] = await Promise.all([
                 Request.countDocuments({ status: 'pending', assignedInvestigatorId: { $exists: false } }),
                 Request.countDocuments({ status: 'in-progress', assignedInvestigatorId: userId }),
                 Request.countDocuments({ status: 'completed', assignedInvestigatorId: userId }),
-                Review.countDocuments({}),
+                Review.countDocuments({investigatorId: userId})
             ]);
-    
-            dashboardData.counts = {
+            dashboardData.investigatorCountActivities = {};
+           // dashboardData.investigatorActivities.counts ={}
+            dashboardData.investigatorCountActivities.counts = {
                 available: availableCount,
                 inProgress: inProgressCount,
                 completed: completedCount,
@@ -102,36 +105,38 @@ export const getCombinedDashboardData = async (req, res) => {
             };
         }
 
-        if(role === 'requester' || role === 'both') {
+        if(userRole === 'requester' || userRole === 'both') {
+            console.log('acccesssing requester');
             const [pendingCount, inProgressCount, completedCount] = await Promise.all([
                 Request.countDocuments({ status: 'pending', requesterId: userId }),
                 Request.countDocuments({ status: 'in-progress', assignedInvestigatorId: userId }),
                 Request.countDocuments({ status: 'completed', assignedInvestigatorId: userId }),
             ]);
-    
-            dashboardData.counts = {
-                available: availableCount,
+            
+            dashboardData.requesterCountActivities = {};
+           // dashboardData.requesterActivities.counts = {};
+            dashboardData.requesterCountActivities.counts = {
+                pending: pendingCount,
                 inProgress: inProgressCount,
                 completed: completedCount,
-                reviews: reviewsCount,
             };
         }
         // Count all available, in-progress, and completed requests
         
 
-        if (role === 'requester' || role === 'both') {
+        if (userRole === 'requester' || userRole === 'both') {
             const requesterRequests = await Request.find({ requesterId: userId })
                 .populate('assignedInvestigatorId', 'name contactDetails')
                 .select('-report')
-                .sort({ createdAt: -1 }); // Show newest first
+                .sort({ createdAt: -1 }).limit(5); // Show newest first
             dashboardData.requesterActivities = requesterRequests;
         }
 
-        if (role === 'investigator' || role === 'both') {
+        if (userRole === 'investigator' || userRole === 'both') {
             const investigatorRequests = await Request.find({ assignedInvestigatorId: userId })
                 .populate('requesterId', 'name contactDetails')
                 .select('-report')
-                .sort({ createdAt: -1 }); // Show newest first
+                .sort({ createdAt: -1 }).limit(5); ; // Show newest first
             dashboardData.investigatorActivities = investigatorRequests;
 
             const availableRequests = await Request.find({ status: 'pending', assignedInvestigatorId: { $exists: false } })
@@ -139,6 +144,8 @@ export const getCombinedDashboardData = async (req, res) => {
                 .sort({ createdAt: -1 })
                 .limit(5); // Show a limited number of available requests
             dashboardData.availableRequests = availableRequests;
+            const reviews = await Review.countDocuments({investigatorId: userId});
+            dashboardData.reviews = reviews
         }
 
         res.json(dashboardData);
