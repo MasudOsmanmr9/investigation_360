@@ -16,13 +16,16 @@ The Investigation project is a web application designed to facilitate the manage
    ```
 
 3. **Set up the MongoDB database:**
-   Ensure you have MongoDB installed and running. Update the connection string in `server.js` if necessary.
+   Ensure you have MongoDB installed and running. Update the connection string in .env file or debug in `server.js` if necessary. 
 
 4. **Run the application:**
    ```bash
-   npm start
+   npm run start
    ```
-
+   or for devlopment
+   ```bash
+   npm run dev
+   ```
 5. **Access the API:**
    The application will be running on `http://localhost:3000`. You can use tools like Postman to interact with the API endpoints.
 
@@ -40,4 +43,4 @@ The Investigation project is a web application designed to facilitate the manage
 Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.
 
 ## License
-This project is licensed under the MIT License.
+This project is licensed under the OWN License.
