@@ -17,6 +17,20 @@ export const getProfile = async (req, res) => {
     }
 };
 
+export const getUserProfile = async (req, res) => {
+    const { id } = req.params; 
+    try {
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        res.json({ message: 'Profile fetched successfully.', user });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching profile.', error });
+    }
+};
+
 export const updateProfile = async (req, res) => {
     const { userId } = req; 
     const { name, contactDetails } = req.body;
@@ -71,6 +85,21 @@ export const getCombinedDashboardData = async (req, res) => {
 
     try {
         const dashboardData = {};
+
+        // Count all available, in-progress, and completed requests
+        const [availableCount, inProgressCount, completedCount, reviewsCount] = await Promise.all([
+            Request.countDocuments({ status: 'pending', assignedInvestigatorId: { $exists: false } }),
+            Request.countDocuments({ status: 'in-progress', assignedInvestigatorId: userId }),
+            Request.countDocuments({ status: 'completed', assignedInvestigatorId: userId }),
+            Review.countDocuments({}),
+        ]);
+
+        dashboardData.counts = {
+            available: availableCount,
+            inProgress: inProgressCount,
+            completed: completedCount,
+            reviews: reviewsCount,
+        };
 
         if (userRole === 'requester' || userRole === 'both') {
             const requesterRequests = await Request.find({ requesterId: userId })

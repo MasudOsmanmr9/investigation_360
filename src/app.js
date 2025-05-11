@@ -12,6 +12,7 @@ import userRoutes from './routes/userRoutes.js';
 import requestRoutes from './routes/requestRoutes.js';
 import investigatorRoutes from './routes/investigatorRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 import { errorHandeler } from './middleware/errorHandeler.js';
 import dotenv from 'dotenv';
 import cors from 'cors'
@@ -35,6 +36,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/investigators', investigatorRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 app.get('/api', (req, res) => {
     res.send('Investigator Platform API');

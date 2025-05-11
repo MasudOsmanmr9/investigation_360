@@ -27,10 +27,19 @@ export const authenticate = (req, res, next) => {
 // Authorization middleware
 export const authorize = (role) => {
     return (req, res, next) => {
-        if ( req.userRole === 'both' || req.activeRole === role) { // Allow 'both' roles
-            next();
-        } else {
-            res.status(403).json({ message: `Forbidden. ${req.userRole} does not have permission.` });
+        if(Array.isArray(role)){
+            if(role.includes(req.userRole)){
+                next();
+            }else{
+                res.status(403).json({ message: `Forbidden. ${req.userRole} does not have permission.` });
+            } // Check if userRole is in the allowed roles
+        }else{
+            if ( req.userRole === 'both' || req.activeRole === role) { // Allow 'both' roles
+                next();
+            } else {
+                res.status(403).json({ message: `Forbidden. ${req.userRole} does not have permission.` });
+            }
         }
+    
     };
 };
