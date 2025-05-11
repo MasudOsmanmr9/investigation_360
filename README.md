@@ -55,6 +55,34 @@ These technologies work together to create a secure, scalable, and user-friendly
 - **Investigator Actions:**
   Investigators can browse available requests, accept or decline them, and submit reports through the `/api/investigators` endpoints.
 
+
+## Postman Collection
+
+A Postman collection `investigation.postman_collection.json ` has been included to help you quickly test and interact with the API endpoints.
+
+### How to Use the Postman Collection:
+
+- **Import the Collection:**
+  1. Open Postman.
+  2. Click on the **"Import"** button in the top-left corner.
+  3. Select the exported Postman collection file (in **Collection v2.1** format) from the project directory.
+
+- **Set Up Environment Variables:**
+  1. The collection may include variables (e.g., `{{base_url}}`, `{{token}}`) for easier testing.
+  2. Create a new environment in Postman and set the required variables:
+     - `base_url`: Set this to `http://localhost:3000` (or your deployed API URL).
+     - `token`: Add the JWT token after logging in.
+
+- **Test the API Endpoints:**
+  - Use the imported collection to test endpoints such as:
+    - **User Registration and Login:** `/api/auth/register`, `/api/auth/login`
+    - **Submitting Requests:** `/api/requests`
+    - **Investigator Actions:** `/api/investigators`
+    - **Reports and Reviews:** `/api/reports`, `/api/reviews`
+
+- **Modify Requests as Needed:**
+  - Update request bodies, headers, or parameters in Postman to match your testing requirements.
+
 ## Contributing
 Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.
 
