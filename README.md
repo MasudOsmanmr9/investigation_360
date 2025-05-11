@@ -1,7 +1,23 @@
 # Investigation Project
 
 ## Overview
-The Investigation project is a web application designed to facilitate the management of investigation requests. It allows users to submit requests, and investigators to browse, accept, decline, and submit reports on these requests. The application uses JWT for authentication and authorization, ensuring secure access to resources based on user roles.
+The Investigation project is a web application designed to facilitate the management of investigation requests. It allows users to submit requests, and investigators to browse, accept, decline, and submit reports on these requests. The application uses 
+
+### Technologies Used
+
+The **Investigation Project** leverages the following technologies:
+
+- **Node.js**: Backend runtime environment for building scalable server-side applications.
+- **Express.js**: Web framework for creating RESTful APIs and handling HTTP requests.
+- **MongoDB**: NoSQL database for storing investigation requests, user data, and reports.
+- **Mongoose**: ODM (Object Data Modeling) library for MongoDB to manage database schemas and queries.
+- **JWT (JSON Web Tokens)**: Used for secure authentication and authorization.
+- **Multer**: Middleware for handling file uploads (e.g., investigator reports).
+- **dotenv**: For managing environment variables securely.
+- **Cors**: Middleware for enabling Cross-Origin Resource Sharing.
+- **Bcrypt.js**: Library for hashing passwords securely.
+
+These technologies work together to create a secure, scalable, and user-friendly application for managing investigation requests.
 
 ## Setup Instructions
 1. **Clone the repository:**
