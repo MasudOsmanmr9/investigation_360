@@ -81,27 +81,45 @@ export const switchRole = async (req, res) => {
 };
 
 export const getCombinedDashboardData = async (req, res) => {
-    const { userId, userRole } = req;
+    const { userId, role } = req;
 
     try {
         const dashboardData = {};
+        
+        if(role === 'investigator' || role === 'both') {
+            const [availableCount, inProgressCount, completedCount, reviewsCount] = await Promise.all([
+                Request.countDocuments({ status: 'pending', assignedInvestigatorId: { $exists: false } }),
+                Request.countDocuments({ status: 'in-progress', assignedInvestigatorId: userId }),
+                Request.countDocuments({ status: 'completed', assignedInvestigatorId: userId }),
+                Review.countDocuments({}),
+            ]);
+    
+            dashboardData.counts = {
+                available: availableCount,
+                inProgress: inProgressCount,
+                completed: completedCount,
+                reviews: reviewsCount,
+            };
+        }
 
+        if(role === 'requester' || role === 'both') {
+            const [pendingCount, inProgressCount, completedCount] = await Promise.all([
+                Request.countDocuments({ status: 'pending', requesterId: userId }),
+                Request.countDocuments({ status: 'in-progress', assignedInvestigatorId: userId }),
+                Request.countDocuments({ status: 'completed', assignedInvestigatorId: userId }),
+            ]);
+    
+            dashboardData.counts = {
+                available: availableCount,
+                inProgress: inProgressCount,
+                completed: completedCount,
+                reviews: reviewsCount,
+            };
+        }
         // Count all available, in-progress, and completed requests
-        const [availableCount, inProgressCount, completedCount, reviewsCount] = await Promise.all([
-            Request.countDocuments({ status: 'pending', assignedInvestigatorId: { $exists: false } }),
-            Request.countDocuments({ status: 'in-progress', assignedInvestigatorId: userId }),
-            Request.countDocuments({ status: 'completed', assignedInvestigatorId: userId }),
-            Review.countDocuments({}),
-        ]);
+        
 
-        dashboardData.counts = {
-            available: availableCount,
-            inProgress: inProgressCount,
-            completed: completedCount,
-            reviews: reviewsCount,
-        };
-
-        if (userRole === 'requester' || userRole === 'both') {
+        if (role === 'requester' || role === 'both') {
             const requesterRequests = await Request.find({ requesterId: userId })
                 .populate('assignedInvestigatorId', 'name contactDetails')
                 .select('-report')
@@ -109,7 +127,7 @@ export const getCombinedDashboardData = async (req, res) => {
             dashboardData.requesterActivities = requesterRequests;
         }
 
-        if (userRole === 'investigator' || userRole === 'both') {
+        if (role === 'investigator' || role === 'both') {
             const investigatorRequests = await Request.find({ assignedInvestigatorId: userId })
                 .populate('requesterId', 'name contactDetails')
                 .select('-report')
