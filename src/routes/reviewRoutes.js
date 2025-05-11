@@ -12,7 +12,7 @@ const router = express.Router();
 router.post('/', authenticate, createReview);
 
 // Get all reviews for a specific investigator
-router.get('/investigator/:investigatorId', authenticate,authorize(['investigator','requester']), getInvestigatorReviews);
+router.get('/investigator/:investigatorId', authenticate,authorize(['investigator','requester','both']), getInvestigatorReviews);
 
 // Get all reviews by a specific requester
 router.get('/requester/:requesterId', authenticate, getRequesterReviews);

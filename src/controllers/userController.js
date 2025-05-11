@@ -109,8 +109,8 @@ export const getCombinedDashboardData = async (req, res) => {
             console.log('acccesssing requester');
             const [pendingCount, inProgressCount, completedCount] = await Promise.all([
                 Request.countDocuments({ status: 'pending', requesterId: userId }),
-                Request.countDocuments({ status: 'in-progress', assignedInvestigatorId: userId }),
-                Request.countDocuments({ status: 'completed', assignedInvestigatorId: userId }),
+                Request.countDocuments({ status: 'in-progress', assignedInvestigatorId: { $exists: true } }),
+                Request.countDocuments({ status: 'completed', assignedInvestigatorId: { $exists: true } }),
             ]);
             
             dashboardData.requesterCountActivities = {};
@@ -144,11 +144,14 @@ export const getCombinedDashboardData = async (req, res) => {
                 .sort({ createdAt: -1 })
                 .limit(5); // Show a limited number of available requests
             dashboardData.availableRequests = availableRequests;
-            const reviews = await Review.countDocuments({investigatorId: userId});
+            const reviews = await Review.find({investigatorId: userId})
+                .populate('requesterId', 'name contactDetails') // Populate requester details
+                .sort({ createdAt: -1 }) // Sort by newest first
+                .limit(5); // Show a limited number of reviews
             dashboardData.reviews = reviews
         }
 
-        res.json(dashboardData);
+        res.json({message: 'dashboard data fetched successfully.',dashboardData});
 
     } catch (error) {
         console.error('Error fetching combined dashboard data:', error);
