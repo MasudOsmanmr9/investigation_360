@@ -105,8 +105,8 @@ export const getCombinedDashboardData = async (req, res) => {
         if(userRole === 'requester' || userRole === 'both') {
             const [pendingCount, inProgressCount, completedCount] = await Promise.all([
                 Request.countDocuments({ status: 'pending', requesterId: userId }),
-                Request.countDocuments({ status: 'in-progress', assignedInvestigatorId: { $exists: true } }),
-                Request.countDocuments({ status: 'completed', assignedInvestigatorId: { $exists: true } }),
+                Request.countDocuments({ status: 'in-progress',requesterId: userId, assignedInvestigatorId: { $exists: true } }),
+                Request.countDocuments({ status: 'completed',requesterId: userId ,assignedInvestigatorId: { $exists: true } }),
             ]);
             
             dashboardData.requesterCountActivities = {};
