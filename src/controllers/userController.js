@@ -4,65 +4,76 @@ import Request from '../models/requestModel.js';
 import Report from '../models/reportModel.js';
 import Review from '../models/reviewModel.js';
 import { generateToken } from '../utils/jwtUtils.js';
-export const getProfile = async (req, res) => {
+import { BadRequestError,NotAuthorizedError,NotFoundError,RequestValidationError,SystemError } from '../errors/index.js';
+import e from 'express';
+
+export const getProfile = async (req, res, next) => {
     const { userId } = req; 
     try {
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ message: 'User not found.' });
+            throw new NotFoundError('User not found.');
         }
 
         res.json({ message: 'Profile fetched successfully.', user });
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching profile.', error });
+        // res.status(500).json({ message: 'Error fetching profile.', error });
+        next(error);
     }
 };
 
-export const getUserProfile = async (req, res) => {
+export const getUserProfile = async (req, res, next) => {
     const { id } = req.params; 
     try {
         const user = await User.findById(id);
         if (!user) {
-            return res.status(404).json({ message: 'User not found.' });
+            // return res.status(404).json({ message: 'User not found.' });
+            throw new NotFoundError('User not found.');
         }
 
         res.json({ message: 'Profile fetched successfully.', user });
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching profile.', error });
+        // res.status(500).json({ message: 'Error fetching profile.', error });
+        next(new SystemError(`Error fetching profile. ${error}`));
     }
 };
 
-export const updateProfile = async (req, res) => {
+export const updateProfile = async (req, res, next) => {
     const { userId } = req; 
     const { name, contactDetails } = req.body;
     try {
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ message: 'User not found.' });
+            // return res.status(404).json({ message: 'User not found.' });
+            throw new NotFoundError('User not found.');
         }
         user.name = name || user.name;
         user.contactDetails = contactDetails || user.contactDetails;
         await user.save();
         res.json({ message: 'Profile updated successfully.', user });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating profile.', error });
+        // res.status(500).json({ message: 'Error updating profile.', error });
+        next(SystemError(`Error updating profile. ${error}`));
     }
 };
 
-export const switchRole = async (req, res) => {
+export const switchRole = async (req, res, next) => {
     const { userId } = req;
     const { switchRoleto } = req.body; 
     try {
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            // return res.status(404).json({ message: 'User not found' });
+            throw new NotFoundError('User not found.');
         }
         if(user.role !== 'both'){
-            return res.status(401).json({ message: 'You are not authorized to switch roles' });
+            // return res.status(401).json({ message: 'You are not authorized to switch roles' });
+            throw new NotAuthorizedError('You are not authorized to switch roles');
         }
 
         if (userRolesConst.indexOf(switchRoleto) === -1) {
-            return res.status(400).json({ message: 'Invalid role. Must be "requester" or "investigator"' });
+            // return res.status(400).json({ message: 'Invalid role. Must be "requester" or "investigator"' });
+            throw new BadRequestError('Invalid role. Must be "requester" or "investigator"');
         }
         user.activeRole = switchRoleto;
         await user.save();
@@ -77,11 +88,12 @@ export const switchRole = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Error switching roles', error });
+        // res.status(500).json({ message: 'Error switching roles', error });
+        next(new SystemError(`Error switching roles. Reason: ${error}`));
     }
 };
 
-export const getCombinedDashboardData = async (req, res) => {
+export const getCombinedDashboardData = async (req, res, next) => {
     const { userId, userRole } = req;
     try {
         const dashboardData = {};
@@ -151,6 +163,7 @@ export const getCombinedDashboardData = async (req, res) => {
 
     } catch (error) {
         console.error('Error fetching combined dashboard data:', error);
-        res.status(500).json({ message: 'Error fetching dashboard data.' });
+        // res.status(500).json({ message: 'Error fetching dashboard data.' });
+        next(new SystemError(`Error fetching dashboard data. Reason: ${error}`));
     }
 };
