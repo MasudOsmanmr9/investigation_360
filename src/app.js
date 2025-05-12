@@ -13,7 +13,7 @@ import requestRoutes from './routes/requestRoutes.js';
 import investigatorRoutes from './routes/investigatorRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
-import { errorHandeler } from './middleware/errorHandeler.js';
+import { errorHandler } from './middleware/errorHandeler.js';
 import dotenv from 'dotenv';
 import cors from 'cors'
 
@@ -42,6 +42,10 @@ app.get('/api', (req, res) => {
     res.send('Investigator Platform API');
 });
 
-app.use(errorHandeler);
+app.use(errorHandler);
+// app.use((err,req, res, next) => {
+//     console.log('Error handler middleware:', err);
+//     res.status(404).json({ message: 'Route not found' });
+// });
 
 export { app };

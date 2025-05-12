@@ -2,8 +2,9 @@ import Request from '../models/requestModel.js';
 import Report from '../models/reportModel.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { BadRequestError,NotAuthorizedError,NotFoundError,RequestValidationError,SystemError } from '../errors/index.js';
 
-export const submitRequest = async (req, res) => {
+export const submitRequest = async (req, res, next) => {
     const { userId } = req;
     const { area, description } = req.body;
     try {
@@ -15,11 +16,12 @@ export const submitRequest = async (req, res) => {
         await newRequest.save();
         res.status(201).json({ message: 'Investigation request submitted successfully.', requestId: newRequest._id });
     } catch (error) {
-        res.status(500).json({ message: 'Error submitting request.', error });
+        // res.status(500).json({ message: 'Error submitting request.', error });
+        next(`Error submitting request: ${error}`);
     }
 };
 
-export const viewMyRequests = async (req, res) => {
+export const viewMyRequests = async (req, res, next) => {
     const { userId } = req;
     const { page = 1, limit = 10,status = 'pending' } = req.query; 
 
@@ -34,7 +36,16 @@ export const viewMyRequests = async (req, res) => {
             .skip((page - 1) * limit)
             .limit(parseInt(limit));
         
+        if (!userRequests || userRequests.length === 0) {
+            // return res.status(404).json({ message: 'No requests found.' });
+            throw new NotFoundError('No requests found.');
+        }
+        
         const totalRequests = await Request.countDocuments(query);
+        if (!totalRequests) {
+            // return res.status(404).json({ message: 'No requests found.' });
+            throw new NotFoundError('Request count failed');
+        }
         const totalPages = Math.ceil(totalRequests / limit);
 
         res.json({
@@ -45,11 +56,12 @@ export const viewMyRequests = async (req, res) => {
         });
         //res.json(userRequests);
     } catch (error) {
-        res.status(500).json({ message: 'Error viewing requests.', error });
+        // res.status(500).json({ message: 'Error viewing requests.', error });
+        next(error);
     }
 };
 
-export const getSingleRequest = async (req, res) => {
+export const getSingleRequest = async (req, res, next) => {
     const { requestId } = req.params; // Extract requestId from the route parameters
 
     try {
@@ -60,28 +72,28 @@ export const getSingleRequest = async (req, res) => {
             .populate('report'); // Populate report details
 
         if (!request) {
-            return res.status(404).json({ message: 'Request not found.' });
+            throw new NotFoundError('Request not found.');
         }
 
         res.json({ message: 'Request fetched successfully.', request });
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching the request.', error });
+        next(error);
     }
 };
 
-export const downloadReport = async (req, res) => {
+export const downloadReport = async (req, res, next) => {
     const { requestId } = req.params;
 
     try {
         // Find the request and populate the report field
         const request = await Request.findById(requestId).populate('report');
         if (!request) {
-            return res.status(404).json({ message: 'Request not found.' });
+            throw new NotFoundError('Request not found.');
         }
 
         // Check if the report exists
         if (!request.report || !request.report.file) {
-            return res.status(404).json({ message: 'Report not found for this request.' });
+            throw new NotFoundError('Report not found for this request.');
         }
 
         const __filename = fileURLToPath(import.meta.url);
@@ -102,6 +114,7 @@ export const downloadReport = async (req, res) => {
         });
         
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching the report.', error });
+        // res.status(500).json({ message: 'Error fetching the report.', error });
+        next(error);
     }
 };

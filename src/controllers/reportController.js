@@ -2,9 +2,9 @@ import Request from '../models/requestModel.js';
 import Report from '../models/reportModel.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { BadRequestError,NotAuthorizedError,NotFoundError,RequestValidationError,SystemError } from '../errors/index.js';
 
-
-export const downloadReport = async (req, res) => {
+export const downloadReport = async (req, res, next) => {
     const { requestId } = req.params;
 
     try {
@@ -14,11 +14,11 @@ export const downloadReport = async (req, res) => {
             .populate('assignedInvestigatorId', 'name contactDetails') // Populate investigator details
             .populate('report'); 
         if (!request) {
-            return res.status(404).json({ message: 'Request not found.' });
+            throw new NotFoundError('Request not found.');
         }
         // Check if the report exists
         if (!request.report || !request.report.file) {
-            return res.status(404).json({ message: 'Report not found for this request.' });
+            throw new NotFoundError('Report not found for this request.');
         }
         let fileExtension = request.report.file.split('.').pop().toLowerCase();
         // Check if the file extension is valid
@@ -57,6 +57,6 @@ export const downloadReport = async (req, res) => {
         
     } catch (error) {
         console.error('Error downloading report:', error);
-        res.status(500).json({ message: 'Error fetching the report.', error });
+        next(error);
     }
 };
