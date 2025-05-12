@@ -16,6 +16,7 @@ The **Investigation Project** leverages the following technologies:
 - **dotenv**: For managing environment variables securely.
 - **Cors**: Middleware for enabling Cross-Origin Resource Sharing.
 - **Bcrypt.js**: Library for hashing passwords securely.
+- **Socket.IO**: Library for enabling real-time, bidirectional communication between clients and servers (used for real-time chat).
 
 These technologies work together to create a secure, scalable, and user-friendly application for managing investigation requests.
 
