@@ -23,17 +23,19 @@ export const submitRequest = async (req, res, next) => {
 
 export const viewMyRequests = async (req, res, next) => {
     const { userId } = req;
-    const { page = 1, limit = 10,status = 'pending' } = req.query; 
+    const { page = 1, limit = 10,status = 'pending',sort = null } = req.query; 
 
     try {
         let query = {
             requesterId: userId,
             status: status,
         };
+        let sortOrder = sort && sort == 'ASC'? 1 : -1; // Default to ascending order
         const userRequests = await Request.find(query)
             .populate('assignedInvestigatorId', 'name contactDetails')
             .select('-report')
             .skip((page - 1) * limit)
+            .sort({ createdAt: sortOrder })
             .limit(parseInt(limit));
         
         if (!userRequests || userRequests.length === 0) {
