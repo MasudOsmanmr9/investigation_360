@@ -8,4 +8,22 @@ const reviewSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model('Review', reviewSchema);
+function escapeBraces(str) {
+  return str.replace(/[{]/g, '{{').replace(/[}]/g, '}}');
+}
+function getTypeName(type) {
+  if (typeof type === 'function') return type.name;
+  if (type && type.constructor) return type.constructor.name;
+  return typeof type;
+}
+
+let collectionName = 'Review';
+let convertedCOllecctionName = collectionName.toLowerCase() + 's';
+let modelPromptFormat = {collectionName:convertedCOllecctionName, schema: {}};
+for (const [key, val] of Object.entries(reviewSchema.tree)) {
+  modelPromptFormat['schema'][key] = { ...val, type: getTypeName(val.type) };
+}
+
+export const reviewModelPrompt = escapeBraces(JSON.stringify(modelPromptFormat, null, 2));
+
+export default mongoose.model(collectionName, reviewSchema);
